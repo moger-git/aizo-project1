@@ -10,8 +10,10 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_executable(aizo-project1 src/main.cpp
         src/main.h
-        src/file_readers/file_reader.cpp
-        src/file_readers/file_reader.h
+        src/include/io/FileLoader.h
+        src/include/structures/DynamicArray.h
+        src/include/structures/SinglyLinkedList.h
+        src/include/structures/DoublyLinkedList.h
 )
 
 target_compile_options(aizo-project1 PRIVATE
