@@ -52,6 +52,21 @@ public:
 
         return true;
     }
+
+    static bool save(const std::string& path, const Structure& structure) {
+        std::ofstream file(path);
+        if (!file.is_open()) {
+            return false;
+        }
+
+        file << structure.size() << '\n';
+
+        for (std::size_t i = 0; i < structure.size(); ++i) {
+            file << structure.at(i) << '\n';
+        }
+
+        return true;
+    }
 };
 
 #endif //AIZO_PROJECT1_FILELOADER_H

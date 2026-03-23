@@ -14,6 +14,8 @@ add_executable(aizo-project1 src/main.cpp
         src/include/structures/DynamicArray.h
         src/include/structures/SinglyLinkedList.h
         src/include/structures/DoublyLinkedList.h
+        src/include/sorting/QuickSorter.h
+        src/include/utils/Validator.h
 )
 
 target_compile_options(aizo-project1 PRIVATE
