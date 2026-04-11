@@ -17,7 +17,7 @@ class SinglyLinkedList {
     Node* tail_;
     std::size_t size_;
 
-    Node* node_at(std::size_t index) const {
+    Node* node_at(const std::size_t index) const {
         Node* current = head_;
 
         for (std::size_t i = 0; i < index; ++i) {
@@ -61,15 +61,16 @@ public:
         size_ = 0;
     }
 
-    [[nodiscard]] std::size_t size() const {
+    long unsigned int size() const
+    {
         return size_;
     }
 
-    T& at(std::size_t index) {
+    T& at(const std::size_t index) {
         return node_at(index)->value;
     }
 
-    const T& at(std::size_t index) const {
+    const T& at(const std::size_t index) const {
         return node_at(index)->value;
     }
 

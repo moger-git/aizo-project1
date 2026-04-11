@@ -10,20 +10,7 @@ class DynamicArray {
     std::size_t size_;
     std::size_t capacity_;
 
-    void reserve(std::size_t new_capacity) {
-        if (new_capacity <= capacity_) {
-            return;
-        }
-
-        T* new_data = new T[new_capacity];
-        for (std::size_t i = 0; i < size_; ++i) {
-            new_data[i] = data_[i];
-        }
-
-        delete[] data_;
-        data_ = new_data;
-        capacity_ = new_capacity;
-    }
+    void reserve(std::size_t new_capacity);
 
 public:
     DynamicArray() : data_(nullptr), size_(0), capacity_(0) {}
@@ -34,7 +21,7 @@ public:
 
     void push_back(const T& value) {
         if (size_ == capacity_) {
-            std::size_t new_capacity = (capacity_ == 0) ? 4 : capacity_ * 2;
+            const std::size_t new_capacity = (capacity_ == 0) ? 4 : capacity_ * 2;
             reserve(new_capacity);
         }
 
@@ -68,6 +55,23 @@ public:
         std::cout << "\n";
     }
 };
+
+template <typename T>
+void DynamicArray<T>::reserve(std::size_t new_capacity)
+{
+    if (new_capacity <= capacity_) {
+        return;
+    }
+
+    T* new_data = new T[new_capacity];
+    for (std::size_t i = 0; i < size_; ++i) {
+        new_data[i] = data_[i];
+    }
+
+    delete[] data_;
+    data_ = new_data;
+    capacity_ = new_capacity;
+}
 
 
 #endif //AIZO_PROJECT1_DYNAMICARRAY_H

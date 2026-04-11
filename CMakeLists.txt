@@ -18,6 +18,10 @@ add_executable(aizo-project1 src/main.cpp
         src/include/utils/Validator.h
 )
 
+target_include_directories(aizo-project1 PUBLIC src src/include)
+
+target_link_libraries(aizo-project1 ${CMAKE_CURRENT_SOURCE_DIR}/src/lib/libparameters.so)
+
 target_compile_options(aizo-project1 PRIVATE
         -Wall
         -Wextra
