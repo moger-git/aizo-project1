@@ -16,6 +16,8 @@ add_executable(aizo-project1 src/main.cpp
         src/include/structures/DoublyLinkedList.h
         src/include/sorting/QuickSorter.h
         src/include/utils/Validator.h
+        src/include/sorting/ShellSorter.h
+        src/include/sorting/BucketSorter.h
 )
 
 target_include_directories(aizo-project1 PUBLIC src src/include)
