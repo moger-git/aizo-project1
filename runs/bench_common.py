@@ -1,7 +1,7 @@
 import os
 import subprocess
 from pathlib import Path
-from typing import List, Optional, Dict
+from typing import List, Optional
 
 BIN = "./cmake-build-debug/aizo-project1"
 RESULTS_DIR = "results"
@@ -26,6 +26,11 @@ TYPE_UINT = 5
 TYPE_ULONG = 6
 TYPE_UCHAR = 7
 
+DIST_RANDOM = 0
+DIST_ASCENDING = 1
+DIST_ASCENDING_50 = 2
+DIST_DESCENDING = 3
+
 PIVOT_RANDOM = 0
 PIVOT_LEFT = 1
 PIVOT_RIGHT = 2
@@ -39,14 +44,13 @@ SHELL_OPTION4 = 3
 LINEAR_STRUCTURES = [STRUCT_ARRAY, STRUCT_SINGLE, STRUCT_DOUBLE]
 OMEGA_STRUCTURES = [STRUCT_ARRAY, STRUCT_SINGLE, STRUCT_DOUBLE, STRUCT_STACK, STRUCT_TREE]
 
+
 def prepare_csv(path: str) -> None:
-    #Tworzenie foldera
     Path(path).parent.mkdir(parents=True, exist_ok=True)
-    #Usuwanie istniejącego pliku .csv
     if os.path.exists(path):
         os.remove(path)
 
-#Budowanie liste argumentów
+
 def benchmark_cmd(results_file: str,
                   algorithm: int,
                   structure: int,
@@ -54,7 +58,8 @@ def benchmark_cmd(results_file: str,
                   length: int,
                   iterations: int,
                   pivot: Optional[int] = None,
-                  shell_param: Optional[int] = None) -> List[str]:
+                  shell_param: Optional[int] = None,
+                  distribution: Optional[int] = None) -> List[str]:
     cmd = [
         BIN,
         "--benchmark",
@@ -72,19 +77,15 @@ def benchmark_cmd(results_file: str,
     if shell_param is not None:
         cmd += ["-e", str(shell_param)]
 
+    if distribution is not None:
+        cmd += ["-d", str(distribution)]
+
     return cmd
 
-#Uruchonienie programu
-def run_command(args: List[str], extra_env: Optional[Dict[str, str]] = None) -> bool:
-    env = os.environ.copy()
-    if extra_env:
-        env.update(extra_env)
 
+def run_command(args: List[str]) -> bool:
     print("RUN:", " ".join(args))
-    if extra_env:
-        print("ENV:", extra_env)
-
-    result = subprocess.run(args, text=True, env=env)
+    result = subprocess.run(args, text=True)
 
     if result.returncode != 0:
         print(f"ERROR: command failed with code {result.returncode}")

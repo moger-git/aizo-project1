@@ -1,19 +1,26 @@
 from bench_common import *
 
 RESULTS_FILE = "results/benchmark_B.csv"
-SIZE = 10000
-ITERATIONS = 100
+ITERATIONS = 50
 DATA_TYPE = TYPE_INT
+SIZE = 10000
 
 CHOSEN_ALGORITHM = ALG_QUICK
 CHOSEN_QUICK_PIVOT = PIVOT_MIDDLE
 CHOSEN_SHELL_PARAMETER = SHELL_OPTION2
 
-DISTRIBUTIONS = ["random", "descending", "ascending", "halfSorted"]
+DISTRIBUTIONS = [
+    DIST_RANDOM,
+    DIST_DESCENDING,
+    DIST_ASCENDING,
+    DIST_ASCENDING_50,
+]
 
 def main() -> int:
     prepare_csv(RESULTS_FILE)
     all_ok = True
+
+    print("=== B / distributions ===")
 
     for structure in LINEAR_STRUCTURES:
         for distribution in DISTRIBUTIONS:
@@ -25,10 +32,11 @@ def main() -> int:
                 length=SIZE,
                 iterations=ITERATIONS,
                 pivot=CHOSEN_QUICK_PIVOT if CHOSEN_ALGORITHM == ALG_QUICK else None,
-                shell_param=CHOSEN_SHELL_PARAMETER if CHOSEN_ALGORITHM == ALG_SHELL else None
+                shell_param=CHOSEN_SHELL_PARAMETER if CHOSEN_ALGORITHM == ALG_SHELL else None,
+                distribution=distribution
             )
 
-            if not run_command(cmd, {"AIZO_DISTRIBUTION": distribution}):
+            if not run_command(cmd):
                 all_ok = False
 
     print(f"Results: {RESULTS_FILE}")

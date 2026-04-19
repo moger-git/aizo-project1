@@ -227,7 +227,7 @@ void fill_random_data(Structure& data, std::size_t size, std::mt19937& rng) {
     data.clear();
 
     if constexpr (std::is_same_v<T, int>) {
-        std::uniform_int_distribution<int> dist(-100000, 100000);
+        std::uniform_int_distribution<int> dist(-100000, 100000); // FIXME:
         for (std::size_t i = 0; i < size; ++i) {
             data.push_back(dist(rng));
         }
