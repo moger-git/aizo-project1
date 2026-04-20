@@ -223,34 +223,51 @@ std::string sort_parameter_to_string() {
 
 //Wypełnienie struktury losowymi danymi
 template<typename T, typename Structure>
-void fill_random_data(Structure& data, std::size_t size, std::mt19937& rng) {
+void fill_random_data(Structure& data, const std::size_t size, std::mt19937& rng) {
     data.clear();
 
     if constexpr (std::is_same_v<T, int>) {
-        std::uniform_int_distribution<int> dist(-100000, 100000); // FIXME:
-        for (std::size_t i = 0; i < size; ++i) {
-            data.push_back(dist(rng));
-        }
-    } else if constexpr (std::is_same_v<T, unsigned int>) {
-        std::uniform_int_distribution<unsigned int> dist(0, 100000);
-        for (std::size_t i = 0; i < size; ++i) {
-            data.push_back(dist(rng));
-        }
-    } else if constexpr (std::is_same_v<T, double>) {
-        std::uniform_real_distribution<double> dist(-100000.0, 100000.0);
-        for (std::size_t i = 0; i < size; ++i) {
-            data.push_back(dist(rng));
-        }
-    } else if constexpr (std::is_same_v<T, std::string>) {
-        std::uniform_int_distribution<int> lenDist(4, 10);
-        std::uniform_int_distribution<int> charDist(0, 25);
+        std::uniform_int_distribution dist(
+            std::numeric_limits<int>::min(),
+            std::numeric_limits<int>::max()
+        );
 
         for (std::size_t i = 0; i < size; ++i) {
-            int len = lenDist(rng);
+            data.push_back(dist(rng));
+        }
+
+    } else if constexpr (std::is_same_v<T, unsigned int>) {
+        std::uniform_int_distribution dist(
+            std::numeric_limits<unsigned int>::min(),
+            std::numeric_limits<unsigned int>::max()
+        );
+
+        for (std::size_t i = 0; i < size; ++i) {
+            data.push_back(dist(rng));
+        }
+
+    } else if constexpr (std::is_same_v<T, double>) {
+        std::uniform_real_distribution dist(
+            std::numeric_limits<double>::lowest(),
+            std::numeric_limits<double>::max()
+        );
+
+        for (std::size_t i = 0; i < size; ++i) {
+            data.push_back(dist(rng));
+        }
+
+    } else if constexpr (std::is_same_v<T, std::string>) {
+        std::uniform_int_distribution lenDist(1, 100);
+        std::uniform_int_distribution charDist(0, 25);
+
+        for (std::size_t i = 0; i < size; ++i) {
+            const int len = lenDist(rng);
             std::string s;
+
             for (int j = 0; j < len; ++j) {
                 s.push_back(static_cast<char>('a' + charDist(rng)));
             }
+
             data.push_back(s);
         }
     }
