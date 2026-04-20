@@ -221,54 +221,138 @@ std::string sort_parameter_to_string() {
     return "none";
 }
 
-//Wypełnienie struktury losowymi danymi
-template<typename T, typename Structure>
-void fill_random_data(Structure& data, const std::size_t size, std::mt19937& rng) {
-    data.clear();
+inline std::string distribution_to_string(Parameters::Distribution distribution) {
+    switch (distribution) {
+    case Parameters::Distribution::undefined:
+        return "undefined";
+    case Parameters::Distribution::random:
+        return "random";
+    case Parameters::Distribution::ascending:
+        return "ascending";
+    case Parameters::Distribution::ascending50Per:
+        return "ascending50Per";
+    case Parameters::Distribution::descending:
+        return "descending";
+    case Parameters::Distribution::count:
+        return "count";
+    default:
+        return "unknown";
+    }
+}
 
+//Wypełnienie struktury losowymi danymi
+template<typename T>
+T generate_random_value(std::mt19937& rng) {
     if constexpr (std::is_same_v<T, int>) {
-        std::uniform_int_distribution dist(
+        std::uniform_int_distribution<int> dist(
             std::numeric_limits<int>::min(),
             std::numeric_limits<int>::max()
         );
-
-        for (std::size_t i = 0; i < size; ++i) {
-            data.push_back(dist(rng));
-        }
+        return dist(rng);
 
     } else if constexpr (std::is_same_v<T, unsigned int>) {
-        std::uniform_int_distribution dist(
+        std::uniform_int_distribution<unsigned int> dist(
             std::numeric_limits<unsigned int>::min(),
             std::numeric_limits<unsigned int>::max()
         );
-
-        for (std::size_t i = 0; i < size; ++i) {
-            data.push_back(dist(rng));
-        }
+        return dist(rng);
 
     } else if constexpr (std::is_same_v<T, double>) {
-        std::uniform_real_distribution dist(
-            std::numeric_limits<double>::lowest(),
-            std::numeric_limits<double>::max()
-        );
-
-        for (std::size_t i = 0; i < size; ++i) {
-            data.push_back(dist(rng));
-        }
+        std::uniform_real_distribution<double> dist(-100000.0, 100000.0);
+        return dist(rng);
 
     } else if constexpr (std::is_same_v<T, std::string>) {
-        std::uniform_int_distribution lenDist(1, 100);
-        std::uniform_int_distribution charDist(0, 25);
+        std::uniform_int_distribution<int> lenDist(1, 20);
+        std::uniform_int_distribution<int> charDist(0, 25);
 
-        for (std::size_t i = 0; i < size; ++i) {
-            const int len = lenDist(rng);
-            std::string s;
+        const int len = lenDist(rng);
+        std::string s;
 
-            for (int j = 0; j < len; ++j) {
-                s.push_back(static_cast<char>('a' + charDist(rng)));
-            }
+        for (int j = 0; j < len; ++j) {
+            s.push_back(static_cast<char>('a' + charDist(rng)));
+        }
 
-            data.push_back(s);
+        return s;
+    }
+}
+
+std::string make_ordered_string(std::size_t value) {
+    std::string s = std::to_string(value);
+
+    while (s.size() < 12) {
+        s = "0" + s;
+    }
+
+    return s;
+}
+
+template<typename T>
+T generate_ascending_value(std::size_t index) {
+    if constexpr (std::is_same_v<T, int>) {
+        return static_cast<int>(index);
+
+    } else if constexpr (std::is_same_v<T, unsigned int>) {
+        return static_cast<unsigned int>(index);
+
+    } else if constexpr (std::is_same_v<T, double>) {
+        return static_cast<double>(index);
+
+    } else if constexpr (std::is_same_v<T, std::string>) {
+        return make_ordered_string(index);
+    }
+}
+
+template<typename T>
+T generate_descending_value(std::size_t index, std::size_t size) {
+    const std::size_t value = size - index;
+
+    if constexpr (std::is_same_v<T, int>) {
+        return static_cast<int>(value);
+
+    } else if constexpr (std::is_same_v<T, unsigned int>) {
+        return static_cast<unsigned int>(value);
+
+    } else if constexpr (std::is_same_v<T, double>) {
+        return static_cast<double>(value);
+
+    } else if constexpr (std::is_same_v<T, std::string>) {
+        return make_ordered_string(value);
+    }
+}
+
+template<typename T, typename Structure>
+void fill_data_by_distribution(
+    Structure& data,
+    const std::size_t size,
+    std::mt19937& rng,
+    Parameters::Distribution distribution
+) {
+    data.clear();
+
+    for (std::size_t i = 0; i < size; ++i) {
+        switch (distribution) {
+            case Parameters::Distribution::ascending:
+                data.push_back(generate_ascending_value<T>(i));
+                break;
+
+            case Parameters::Distribution::descending:
+                data.push_back(generate_descending_value<T>(i, size));
+                break;
+
+            case Parameters::Distribution::ascending50Per:
+                if (i < size / 2) {
+                    data.push_back(generate_ascending_value<T>(i));
+                } else {
+                    data.push_back(generate_random_value<T>(rng));
+                }
+                break;
+
+            case Parameters::Distribution::random:
+            case Parameters::Distribution::undefined:
+            case Parameters::Distribution::count:
+            default:
+                data.push_back(generate_random_value<T>(rng));
+                break;
         }
     }
 }
@@ -284,7 +368,12 @@ int run_benchmark_typed() {
 
     for (int i = 0; i < Parameters::iterations; ++i) {
         Structure data;
-        fill_random_data<T>(data, static_cast<std::size_t>(Parameters::structureSize), rng);
+        fill_data_by_distribution<T>(
+            data,
+            static_cast<std::size_t>(Parameters::structureSize),
+            rng,
+            Parameters::distribution
+        );
 
         long long sort_time_us = 0;
         int sort_result = sort_selected_algorithm<T>(data, sort_time_us);
@@ -313,7 +402,7 @@ int run_benchmark_typed() {
     stats.sortParameter = sort_parameter_to_string();
     stats.variableType = structure_to_string();
     stats.dataType = datatype_to_string();
-    stats.dataDistribution = "random";
+    stats.dataDistribution = distribution_to_string(Parameters::distribution);
     stats.arrayLength = static_cast<std::size_t>(Parameters::structureSize);
     stats.tries = Parameters::iterations;
     stats.minSortDuration = min_us;
